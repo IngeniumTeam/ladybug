@@ -10,17 +10,32 @@ void setupMotors() {
   pinMode(frB, OUTPUT);
 }
 
-void moveMotors(bool MAState = true, bool MBState = true, int speedA = 127.5, int speedB = 127.5, bool stop = false) {
-  if(!stop){
+void moveMotors(motorStates MAState = motorStates::Forward, motorStates MBState = motorStates::Forward, int speedA = 127.5, int speedB = 127.5) {
+  if(MAState == motorStates::Forward){
     analogWrite(pwmA, speedA);
-    digitalWrite(dirA, MAState);
+    digitalWrite(dirA, LOW);
+    digitalWrite(frA, LOW);
+    
+  }else if(MAState == motorStates::Backward) {
+    analogWrite(pwmA, speedA);
+    digitalWrite(dirA, HIGH);
     digitalWrite(frA, LOW);
 
-    analogWrite(pwmB, speedB);
-    digitalWrite(dirB, MBState);
-    digitalWrite(frB, LOW);
-  }else{
+  }else if(MAState == motorStates::Stop) {
     digitalWrite(frA, HIGH);
+  }
+
+  if(MBState == motorStates::Forward){
+    analogWrite(pwmB, speedA);
+    digitalWrite(dirB, HIGH);
+    digitalWrite(frB, LOW);
+    
+  }else if(MBState == motorStates::Backward) {
+    analogWrite(pwmB, speedA);
+    digitalWrite(dirB, LOW);
+    digitalWrite(frB, LOW);
+
+  }else if(MBState == motorStates::Stop) {
     digitalWrite(frB, HIGH);
   }
 }

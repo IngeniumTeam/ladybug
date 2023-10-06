@@ -10,7 +10,13 @@
 #define frA 9
 #define frB 8 
 
+enum motorStates{
+  Forward,
+  Backward,
+  Stop,
+};
+
 void setupMotors();
-void moveMotors();
+void moveMotors(motorStates MAState = motorStates::Forward, motorStates MBState = motorStates::Forward, int speedA = 127.5, int speedB = 127.5);
 
 #endif
