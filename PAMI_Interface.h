@@ -3,6 +3,10 @@
 
 #include "Arduino.h" 
 #include "motors_controller.h"
+#include <Servo.h>
+
+#define servoArmPin 10
+#define limitSwitchPin 4
 
 enum motorsDirections{
   Forwards,
@@ -23,6 +27,9 @@ class PAMIInterface{
 public:
   static void setup();
   static void controlMotors(motorsDirections direction, motorsSpeeds speed = motorsSpeeds::Three);
+  static void raiseArm();
+  static void lowerArm();
+  static bool getLimitSwitchState();
 
 private:
   PAMIInterface();
