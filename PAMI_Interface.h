@@ -30,6 +30,7 @@ public:
   static void raiseArm();
   static void lowerArm();
   static bool getLimitSwitchState();
+  static int motorTurns = 0;
 
 private:
   PAMIInterface();
