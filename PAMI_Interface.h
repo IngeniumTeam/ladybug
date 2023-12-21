@@ -3,7 +3,11 @@
 
 #include "Arduino.h" 
 #include "motors_controller.h"
+<<<<<<< HEAD
+#include "motors_encoder.h"
+=======
 // #include "motors_encoder.h"
+>>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
 #include <Servo.h>
 
 #define servoArmPin 9
@@ -16,9 +20,12 @@
 
 class PAMIInterface{
 public:
+<<<<<<< HEAD
+=======
   // static int* MATurns = &motorATurns;
   // static int* MBTurns = &motorBTurns;
 
+>>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
   enum motorsDirections{
     Forwards,
     Backwards,

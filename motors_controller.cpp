@@ -8,6 +8,12 @@ void setupMotors() {
   pinMode(bIn2, OUTPUT);
   pinMode(pwmA, OUTPUT);
   pinMode(pwmB, OUTPUT);
+<<<<<<< HEAD
+
+  pinMode(STBY,OUTPUT);
+  digitalWrite(STBY, HIGH);
+=======
+>>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
 }
 
 void moveMotors(motorStates MAState = motorStates::Forward, motorStates MBState = motorStates::Forward, int speedA = 127.5, int speedB = 127.5) {

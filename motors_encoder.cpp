@@ -1,5 +1,10 @@
 #include "motors_encoder.h"
 
+<<<<<<< HEAD
+int motorATurns = 0;
+int motorBTurns = 0;
+=======
+>>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
 int MATicksForATurn = 0;
 int MBTicksForATurn = 0;
 
@@ -55,4 +60,19 @@ void MBCounter()
 
     MBLaststate=state;
   }
+<<<<<<< HEAD
+}
+
+void resetCounterA() {
+  motorATurns = 0;
+  MACount = 0;
+  MALaststate = 0;
+}
+
+void resetCounterB() {
+  motorBTurns = 0;
+  MBCount = 0;
+  MBLaststate = 0;
+=======
+>>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
 }
