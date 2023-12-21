@@ -3,12 +3,12 @@
 
 #include "Arduino.h"
 
-#define dirA 12
-#define dirB 13
-#define pwmA 3
-#define pwmB 11
-#define frA 9
-#define frB 8 
+#define aIn1 7
+#define aIn2 8
+#define bIn1 11
+#define bIn2 12
+#define pwmA 5
+#define pwmB 6
 
 enum motorStates{
   Forward,

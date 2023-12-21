@@ -5,13 +5,15 @@ Servo armMotor;
 
 void PAMIInterface::setup() {
   setupMotors();
-  setupEncoder(600, 600);
+  // setupEncoder(600, 600);
   armMotor.attach(servoArmPin);
   pinMode(limitSwitchPin, INPUT_PULLUP);
-  pinMode(switch1Pin, INPUT_PULLUP);
-  pinMode(switch2Pin, INPUT_PULLUP);
-  pinMode(switch3Pin, INPUT_PULLUP);
-  pinMode(switch4Pin, INPUT_PULLUP);
+  pinMode(switch1Pin, INPUT);
+  pinMode(switch2Pin, INPUT);
+  pinMode(switch3Pin, INPUT);
+  pinMode(switch4Pin, INPUT);
+  
+  pinMode(ledPin, OUTPUT);
 
   armMotor.write(180);
 }
@@ -55,5 +57,9 @@ bool PAMIInterface::getSwitchState(int id) {
     switchPin = switch4Pin;
   }
 
-  return analogRead(switchPin)
+  return analogRead(switchPin);
+}
+
+void PAMIInterface::setLedState(bool ledState) {
+  digitalWrite(ledPin, ledState);
 }

@@ -3,9 +3,9 @@
 
 #include "Arduino.h"
 
-#define encoderA 1
+#define encoderA A1
 #define encoderABreak 3
-#define encoderB 0
+#define encoderB A0
 #define encoderBBreak 2
 
 int motorATurns = 0;

@@ -3,15 +3,16 @@
 
 #include "Arduino.h" 
 #include "motors_controller.h"
-#include "motors_encoder.h"
+// #include "motors_encoder.h"
 #include <Servo.h>
 
 #define servoArmPin 9
 #define limitSwitchPin 13
-#define switch1Pin 2
-#define switch2Pin 3
-#define switch3Pin 4
-#define switch4Pin 5
+#define switch1Pin A2
+#define switch2Pin A3
+#define switch3Pin A4
+#define switch4Pin A5
+#define ledPin 5
 
 class PAMIInterface{
 public:
@@ -38,7 +39,8 @@ public:
   static void raiseArm();
   static void lowerArm();
   static bool getLimitSwitchState();
-  bool PAMIInterface::getSwitchState(int id);
+  static bool PAMIInterface::getSwitchState(int id);
+  static void PAMIInterface::setLedState(bool ledState);
 
 private:
   PAMIInterface();
