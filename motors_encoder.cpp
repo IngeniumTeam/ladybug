@@ -1,17 +1,15 @@
+#include "HardwareSerial.h"
+#include "Arduino.h"
 #include "motors_encoder.h"
 
-<<<<<<< HEAD
 int motorATurns = 0;
 int motorBTurns = 0;
-=======
->>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
+
 int MATicksForATurn = 0;
 int MBTicksForATurn = 0;
 
 volatile int MACount = 0;
-volatile byte MALaststate = 0;
 volatile int MBCount = 0;
-volatile byte MBLaststate = 0;
 
 void setupEncoder(int MATicksTurns, int MBTicksTurns) {
   MATicksForATurn = MATicksTurns;
@@ -22,57 +20,47 @@ void setupEncoder(int MATicksTurns, int MBTicksTurns) {
   pinMode(encoderB, INPUT_PULLUP);
   pinMode(encoderBBreak, INPUT_PULLUP);
 
-  attachInterrupt(0,MACounter, CHANGE);
-  attachInterrupt(1,MBCounter, CHANGE);
+  attachInterrupt(1, MACounter, RISING);
+  attachInterrupt(0,MBCounter, RISING);
 }
 
 void MACounter()
 {
-  byte state=PIND;
-  
-  state|=B11101011;  // mask pour ne regarder que les changements sur 2 et 4 
-  // Modifier le MASK  B01111011 par BXXXXXXXX mettre des 0 là où sont les pins utilisés par l'encodeur
-  if( state!=MALaststate)
-  {
-    (((state&(1<<encoderA))>>encoderA)^((state&(1<<encoderA))>>encoderA))?MACount--:MACount++;
+  int encoderARead = analogRead(encoderA);
 
-    if(MACount >= MATicksForATurn) {
-      motorATurns++;
-    }
+  if (encoderARead > 512) MACount--;
+  if (encoderARead < 512) MACount++;
 
-    MALaststate=state;
+  // Serial.println(MACount);
+
+  if(MACount >= MATicksForATurn) {
+    motorATurns++;
+  }
+
+  if(MACount <= -MATicksForATurn) {
+    motorATurns--;
   }
 }
 
 void MBCounter()
 {
-  byte state=PIND;
-  
-  state|=B11101011;  // mask pour ne regarder que les changements sur 2 et 4 
-  // Modifier le MASK  B01111011 par BXXXXXXXX mettre des 0 là où sont les pins utilisés par l'encodeur
-  if( state!=MBLaststate)
-  {
-    (((state&(1<<encoderB))>>encoderB)^((state&(1<<encoderB))>>encoderB))?MBCount--:MBCount++;
+  int encoderBRead = analogRead(encoderB);
 
-    if(MBCount >= MBTicksForATurn) {
-      motorBTurns++;
-    }
+  if (encoderBRead > 512) MBCount--;
+  if (encoderBRead < 512) MBCount++;
 
-    MBLaststate=state;
+  if(MBCount >= MBTicksForATurn) {
+    motorBTurns++;
   }
-<<<<<<< HEAD
 }
+
 
 void resetCounterA() {
   motorATurns = 0;
   MACount = 0;
-  MALaststate = 0;
 }
 
 void resetCounterB() {
   motorBTurns = 0;
   MBCount = 0;
-  MBLaststate = 0;
-=======
->>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
 }

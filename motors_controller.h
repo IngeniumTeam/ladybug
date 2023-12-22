@@ -9,10 +9,7 @@
 #define bIn2 12
 #define pwmA 5
 #define pwmB 6
-<<<<<<< HEAD
 #define STBY 10
-=======
->>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
 
 enum motorStates{
   Forward,

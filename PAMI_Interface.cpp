@@ -5,11 +5,7 @@ Servo armMotor;
 
 void PAMIInterface::setup() {
   setupMotors();
-<<<<<<< HEAD
-  setupEncoder(705, 600);
-=======
-  // setupEncoder(600, 600);
->>>>>>> 58d7c56be47c77c8bafa29c65d19540dfb2ea7db
+  setupEncoder(35, 600);
   armMotor.attach(servoArmPin);
   pinMode(limitSwitchPin, INPUT_PULLUP);
   pinMode(switch1Pin, INPUT);
