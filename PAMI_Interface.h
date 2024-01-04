@@ -12,7 +12,7 @@
 #define switch2Pin A3
 #define switch3Pin A4
 #define switch4Pin A5
-#define ledPin 5
+#define ledPin 4
 
 class PAMIInterface{
 public:

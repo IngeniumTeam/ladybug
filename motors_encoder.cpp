@@ -31,8 +31,6 @@ void MACounter()
   if (encoderARead > 512) MACount--;
   if (encoderARead < 512) MACount++;
 
-  // Serial.println(MACount);
-
   if(MACount >= MATicksForATurn) {
     motorATurns++;
   }
@@ -44,13 +42,17 @@ void MACounter()
 
 void MBCounter()
 {
-  int encoderBRead = analogRead(encoderB);
+  int encoderBRead = analogRead(encoderA);
 
   if (encoderBRead > 512) MBCount--;
   if (encoderBRead < 512) MBCount++;
-
-  if(MBCount >= MBTicksForATurn) {
+  
+  if(MBCount >= MATicksForATurn) {
     motorBTurns++;
+  }
+
+  if(MBCount <= -MATicksForATurn) {
+    motorBTurns--;
   }
 }
 
