@@ -2,6 +2,7 @@
 
 bool inYellowTeam = true;
 int pamiId = 1;
+int state = 1;
 
 void setup() {
   PAMIInterface::setup();
@@ -17,14 +18,51 @@ void setup() {
   }
 
   Serial.begin(9600);
-  // PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::One);
+  PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
 }
 
 void loop() {
-  // if(motorATurns <= -1) {
-  //   PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Stops);
-  //   resetCounterA();
-  //   delay(1000);
-  //   PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Three);
+  PAMIInterface::setLedState(PAMIInterface::getLimitSwitchState());
+  if(motorATurns <= -1) {
+    PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Stops);
+    resetCounterA();
+    delay(1000);
+    PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
+  }
+  // switch (pamiId) 
+  // {
+  //   case 1:
+  //     switch (state)
+  //     {
+  //       case 1:
+  //         PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
+  //         if(motorATurns == -3) {
+  //           resetCounterA();
+  //           state++;
+  //         }
+  //         break;
+  //       case 2:
+  //         PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Lefts, PAMIInterface::motorsSpeeds::Two);
+  //         if(motorATurns == -2) {
+  //           resetCounterA();
+  //           state++;
+  //         }
+  //       case 2:
+  //         PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Lefts, PAMIInterface::motorsSpeeds::Two);
+  //         if(motorATurns == -2) {
+  //           resetCounterA();
+  //           state++;
+  //         }
+  //         break;
+  //     }
+  //     break;
+
+  //   case 2:
+
+  //     break;
+
+  //   case 3:
+
+  //     break;
   // }
 }

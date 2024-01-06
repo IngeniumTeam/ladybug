@@ -33,10 +33,13 @@ void MACounter()
 
   if(MACount >= MATicksForATurn) {
     motorATurns++;
+    MACount = MACount - MATicksForATurn;
   }
 
   if(MACount <= -MATicksForATurn) {
     motorATurns--;
+    MACount = MACount + MATicksForATurn;
+    // Serial.println("Ticks : " + String(MACount) + " Turns : " + String(motorATurns));
   }
 }
 

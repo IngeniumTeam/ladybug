@@ -28,7 +28,7 @@ public:
     One = 64,
     Two = 127,
     Three = 191,
-    For = 255,
+    Four = 255,
   };
 
   static void setup();

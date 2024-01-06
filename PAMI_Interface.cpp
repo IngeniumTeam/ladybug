@@ -5,9 +5,9 @@ Servo armMotor;
 
 void PAMIInterface::setup() {
   setupMotors();
-  setupEncoder(385, 385);
+  setupEncoder(355, 385);
   armMotor.attach(servoArmPin);
-  pinMode(limitSwitchPin, INPUT_PULLUP);
+  pinMode(limitSwitchPin, INPUT);
   pinMode(switch1Pin, INPUT);
   pinMode(switch2Pin, INPUT);
   pinMode(switch3Pin, INPUT);
@@ -20,7 +20,7 @@ void PAMIInterface::setup() {
 
 void PAMIInterface::controlMotors(PAMIInterface::motorsDirections direction, PAMIInterface::motorsSpeeds speed = PAMIInterface::motorsSpeeds::Three) {
   if(direction == PAMIInterface::motorsDirections::Forwards){
-    moveMotors(motorStates::Forward, motorStates::Backward, speed, speed);
+    moveMotors(motorStates::Forward, motorStates::Forward, speed, speed);
   }else if(direction == PAMIInterface::motorsDirections::Backwards){
     moveMotors(motorStates::Backward, motorStates::Backward, speed, speed);
   }else   if(direction == PAMIInterface::motorsDirections::Lefts){
