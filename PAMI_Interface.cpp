@@ -3,6 +3,10 @@
 
 Servo armMotor;
 
+motorStates MALastState = motorStates::Stop;
+motorStates MBLastState = motorStates::Stop;
+int currentSpeed = 0;
+
 void PAMIInterface::setup() {
   setupMotors();
   setupEncoder(355, 385);
@@ -19,16 +23,33 @@ void PAMIInterface::setup() {
 }
 
 void PAMIInterface::controlMotors(PAMIInterface::motorsDirections direction, PAMIInterface::motorsSpeeds speed = PAMIInterface::motorsSpeeds::Three) {
+  bool correctDirection = false;
+
   if(direction == PAMIInterface::motorsDirections::Forwards){
-    moveMotors(motorStates::Forward, motorStates::Forward, speed, speed);
+    MALastState = motorStates::Forward;
+    MBLastState = motorStates::Forward;
+    correctDirection = true;
   }else if(direction == PAMIInterface::motorsDirections::Backwards){
-    moveMotors(motorStates::Backward, motorStates::Backward, speed, speed);
-  }else   if(direction == PAMIInterface::motorsDirections::Lefts){
-    moveMotors(motorStates::Forward, motorStates::Backward, speed, speed);
-  }else   if(direction == PAMIInterface::motorsDirections::Rights){
-    moveMotors(motorStates::Backward, motorStates::Forward, speed, speed);
-  }else   if(direction == PAMIInterface::motorsDirections::Stops){
-    moveMotors(motorStates::Stop, motorStates::Stop, speed, speed);
+    MALastState = motorStates::Backward;
+    MBLastState = motorStates::Backward;
+    correctDirection = true;
+  }else if(direction == PAMIInterface::motorsDirections::Lefts){
+    MALastState = motorStates::Forward;
+    MBLastState = motorStates::Backward;
+    correctDirection = true;
+  }else if(direction == PAMIInterface::motorsDirections::Rights){
+    MALastState = motorStates::Backward;
+    MBLastState = motorStates::Forward;
+    correctDirection = true;
+  }else if(direction == PAMIInterface::motorsDirections::Stops){
+    MALastState = motorStates::Stop;
+    MBLastState = motorStates::Stop;
+    correctDirection = true;
+  }
+
+  if(correctDirection) {
+    moveMotors(MALastState, MBLastState, speed, speed);
+    currentSpeed = speed;
   }
 }
 
@@ -62,4 +83,13 @@ bool PAMIInterface::getSwitchState(int id) {
 
 void PAMIInterface::setLedState(bool ledState) {
   digitalWrite(ledPin, ledState);
+}
+
+static void PAMIInterface::fixMotors(int coef) {
+  int diff = MATicks - MBTicks;
+  int MASpeed = max(0, min(255, currentSpeed - coef * diff));
+  int MBSpeed = max(0, min(255, currentSpeed + coef * diff));
+
+  Serial.println("A : " + String(MASpeed) + " B : " + String(MBSpeed) + " Diff : " + diff);
+  moveMotors(MALastState, MBLastState, MASpeed, MBSpeed);
 }

@@ -22,13 +22,16 @@ void setup() {
 }
 
 void loop() {
-  PAMIInterface::setLedState(PAMIInterface::getLimitSwitchState());
-  if(motorATurns <= -1) {
-    PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Stops);
-    resetCounterA();
-    delay(1000);
-    PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
-  }
+  PAMIInterface::fixMotors(0.8);
+  // Serial.println("A : " + String(MATicks) + " B : " + String(MBTicks));
+
+  // if(motorATurns <= -1) {
+  //   PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Stops);
+  //   resetCounterA();
+  //   delay(1000);
+  //   PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
+  // }
+
   // switch (pamiId) 
   // {
   //   case 1:

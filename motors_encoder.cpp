@@ -8,8 +8,8 @@ int motorBTurns = 0;
 int MATicksForATurn = 0;
 int MBTicksForATurn = 0;
 
-volatile int MACount = 0;
-volatile int MBCount = 0;
+volatile int MATicks = 0;
+volatile int MBTicks = 0;
 
 void setupEncoder(int MATicksTurns, int MBTicksTurns) {
   MATicksForATurn = MATicksTurns;
@@ -28,44 +28,46 @@ void MACounter()
 {
   int encoderARead = analogRead(encoderA);
 
-  if (encoderARead > 512) MACount--;
-  if (encoderARead < 512) MACount++;
+  if (encoderARead > 512) MATicks++;
+  if (encoderARead < 512) MATicks--;
 
-  if(MACount >= MATicksForATurn) {
+  if(MATicks >= MATicksForATurn) {
     motorATurns++;
-    MACount = MACount - MATicksForATurn;
+    MATicks = MATicks - MATicksForATurn;
   }
 
-  if(MACount <= -MATicksForATurn) {
+  if(MATicks <= -MATicksForATurn) {
     motorATurns--;
-    MACount = MACount + MATicksForATurn;
-    // Serial.println("Ticks : " + String(MACount) + " Turns : " + String(motorATurns));
+    MATicks = MATicks + MATicksForATurn;
   }
 }
 
 void MBCounter()
 {
-  int encoderBRead = analogRead(encoderA);
+  // Serial.println("MB Count !!");
+  int encoderBRead = analogRead(encoderB);
 
-  if (encoderBRead > 512) MBCount--;
-  if (encoderBRead < 512) MBCount++;
+  if (encoderBRead > 512) MBTicks--;
+  if (encoderBRead < 512) MBTicks++;
   
-  if(MBCount >= MATicksForATurn) {
+  if(MBTicks >= MBTicksForATurn) {
     motorBTurns++;
+    MBTicks = MBTicks - MBTicksForATurn;
   }
 
-  if(MBCount <= -MATicksForATurn) {
+  if(MBTicks <= -MBTicksForATurn) {
     motorBTurns--;
+    MBTicks = MBTicks + MBTicksForATurn;
   }
 }
 
 
 void resetCounterA() {
   motorATurns = 0;
-  MACount = 0;
+  MATicks = 0;
 }
 
 void resetCounterB() {
   motorBTurns = 0;
-  MBCount = 0;
+  MBTicks = 0;
 }

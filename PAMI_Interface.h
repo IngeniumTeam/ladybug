@@ -36,8 +36,9 @@ public:
   static void raiseArm();
   static void lowerArm();
   static bool getLimitSwitchState();
-  static bool PAMIInterface::getSwitchState(int id);
-  static void PAMIInterface::setLedState(bool ledState);
+  static bool getSwitchState(int id);
+  static void setLedState(bool ledState);
+  static void fixMotors(int coef);
 
 private:
   PAMIInterface();
