@@ -10,8 +10,8 @@
 
 extern int motorATurns;
 extern int motorBTurns;
-extern volatile int MATicks;
-extern volatile int MBTicks;
+extern int MATicks;
+extern int MBTicks;
 
 void setupEncoder(int MATicksTurns, int MBTicksTurns);
 void MACounter();

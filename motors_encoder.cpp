@@ -8,8 +8,8 @@ int motorBTurns = 0;
 int MATicksForATurn = 0;
 int MBTicksForATurn = 0;
 
-volatile int MATicks = 0;
-volatile int MBTicks = 0;
+int MATicks = 0;
+int MBTicks = 0;
 
 void setupEncoder(int MATicksTurns, int MBTicksTurns) {
   MATicksForATurn = MATicksTurns;

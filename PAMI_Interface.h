@@ -5,6 +5,7 @@
 #include "motors_controller.h"
 #include "motors_encoder.h"
 #include <Servo.h>
+#include <PID_v1.h>
 
 #define servoArmPin 9
 #define limitSwitchPin 13

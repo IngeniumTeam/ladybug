@@ -17,12 +17,12 @@ void setup() {
     pamiId = 3;
   }
 
-  Serial.begin(9600);
+  // Serial.begin(9600);
   PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
 }
 
 void loop() {
-  PAMIInterface::fixMotors(0.8);
+  PAMIInterface::fixMotors(0.2);
   // Serial.println("A : " + String(MATicks) + " B : " + String(MBTicks));
 
   // if(motorATurns <= -1) {

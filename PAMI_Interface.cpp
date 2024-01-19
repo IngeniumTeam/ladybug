@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "PAMI_Interface.h"
 
 Servo armMotor;
@@ -6,6 +5,15 @@ Servo armMotor;
 motorStates MALastState = motorStates::Stop;
 motorStates MBLastState = motorStates::Stop;
 int currentSpeed = 0;
+
+double consigne = 0;
+double outputMotorA, outputMotorB;
+double Kp = 5.0, Ki = 0.0, Kd = 0.0;
+double MATicksDouble;
+double MBTicksDouble;
+
+PID pidMotorA(&MATicksDouble, &outputMotorA, &consigne, Kp, Ki, Kd, DIRECT);
+PID pidMotorB(&MBTicksDouble, &outputMotorB, &consigne, Kp, Ki, Kd, DIRECT);
 
 void PAMIInterface::setup() {
   setupMotors();
@@ -18,6 +26,9 @@ void PAMIInterface::setup() {
   pinMode(switch4Pin, INPUT);
   
   pinMode(ledPin, OUTPUT);
+
+  pidMotorA.SetMode(AUTOMATIC);
+  pidMotorB.SetMode(AUTOMATIC);
 
   // armMotor.write(180);
 }
@@ -86,10 +97,16 @@ void PAMIInterface::setLedState(bool ledState) {
 }
 
 static void PAMIInterface::fixMotors(int coef) {
+  // MATicksDouble = static_cast<double>(MATicks);
+  // MBTicksDouble = static_cast<double>(MBTicks);
   int diff = MATicks - MBTicks;
-  int MASpeed = max(0, min(255, currentSpeed - coef * diff));
-  int MBSpeed = max(0, min(255, currentSpeed + coef * diff));
+  int MASpeed = constrain(currentSpeed - coef * diff, 0, 255);
+  int MBSpeed = constrain(currentSpeed + coef * diff, 0, 255);
 
-  Serial.println("A : " + String(MASpeed) + " B : " + String(MBSpeed) + " Diff : " + diff);
-  moveMotors(MALastState, MBLastState, MASpeed, MBSpeed);
+  Serial.println("A : " + String(MATicks) + " B : " + String(MBTicks) + " Diff : " + diff);
+  // pidMotorA.Compute();
+  // pidMotorB.Compute();
+
+  // moveMotors(MALastState, MBLastState, MASpeed, MBSpeed);
+
 }
