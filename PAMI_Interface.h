@@ -5,7 +5,6 @@
 #include "motors_controller.h"
 #include "motors_encoder.h"
 #include <Servo.h>
-#include <PID_v1.h>
 
 #define servoArmPin 9
 #define limitSwitchPin 13
@@ -33,7 +32,7 @@ public:
   };
 
   static void setup();
-  static void controlMotors(PAMIInterface::motorsDirections direction, PAMIInterface::motorsSpeeds speed = PAMIInterface::motorsSpeeds::Three);
+  static void controlMotors(PAMIInterface::motorsDirections direction, PAMIInterface::motorsSpeeds speed = PAMIInterface::motorsSpeeds::Three, int distance = 0);
   static void raiseArm();
   static void lowerArm();
   static bool getLimitSwitchState();

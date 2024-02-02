@@ -6,18 +6,8 @@ motorStates MALastState = motorStates::Stop;
 motorStates MBLastState = motorStates::Stop;
 int currentSpeed = 0;
 
-double consigne = 0;
-double outputMotorA, outputMotorB;
-double Kp = 5.0, Ki = 0.0, Kd = 0.0;
-double MATicksDouble;
-double MBTicksDouble;
-
-PID pidMotorA(&MATicksDouble, &outputMotorA, &consigne, Kp, Ki, Kd, DIRECT);
-PID pidMotorB(&MBTicksDouble, &outputMotorB, &consigne, Kp, Ki, Kd, DIRECT);
-
 void PAMIInterface::setup() {
   setupMotors();
-  setupEncoder(355, 385);
   armMotor.attach(servoArmPin);
   pinMode(limitSwitchPin, INPUT);
   pinMode(switch1Pin, INPUT);
@@ -27,30 +17,38 @@ void PAMIInterface::setup() {
   
   pinMode(ledPin, OUTPUT);
 
-  pidMotorA.SetMode(AUTOMATIC);
-  pidMotorB.SetMode(AUTOMATIC);
-
   // armMotor.write(180);
 }
 
-void PAMIInterface::controlMotors(PAMIInterface::motorsDirections direction, PAMIInterface::motorsSpeeds speed = PAMIInterface::motorsSpeeds::Three) {
+void PAMIInterface::controlMotors(PAMIInterface::motorsDirections direction, PAMIInterface::motorsSpeeds speed = PAMIInterface::motorsSpeeds::Three, int distance) {
   bool correctDirection = false;
+  int maxTicks = 0;
 
   if(direction == PAMIInterface::motorsDirections::Forwards){
     MALastState = motorStates::Forward;
     MBLastState = motorStates::Forward;
+
+    maxTicks = int(distance / PI / wheelDiameter * ticksPerTurn);
     correctDirection = true;
   }else if(direction == PAMIInterface::motorsDirections::Backwards){
     MALastState = motorStates::Backward;
     MBLastState = motorStates::Backward;
+    
+    maxTicks = int(distance / PI / wheelDiameter * ticksPerTurn);
     correctDirection = true;
   }else if(direction == PAMIInterface::motorsDirections::Lefts){
     MALastState = motorStates::Forward;
     MBLastState = motorStates::Backward;
+
+    float radAngle = distance * PI / 180.0;
+    maxTicks = int(radAngle / (2 * PI) * ticksPerTurn * halfVehicleTrack / wheelDiameter * 2.0);
     correctDirection = true;
   }else if(direction == PAMIInterface::motorsDirections::Rights){
     MALastState = motorStates::Backward;
     MBLastState = motorStates::Forward;
+    
+    float radAngle = distance * PI / 180.0;
+    maxTicks = int(radAngle / (2 * PI) * ticksPerTurn * halfVehicleTrack / wheelDiameter * 2.0);
     correctDirection = true;
   }else if(direction == PAMIInterface::motorsDirections::Stops){
     MALastState = motorStates::Stop;
@@ -59,7 +57,7 @@ void PAMIInterface::controlMotors(PAMIInterface::motorsDirections direction, PAM
   }
 
   if(correctDirection) {
-    moveMotors(MALastState, MBLastState, speed, speed);
+    moveMotors(MALastState, MBLastState, maxTicks, speed);
     currentSpeed = speed;
   }
 }
