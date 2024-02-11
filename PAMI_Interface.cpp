@@ -1,14 +1,29 @@
+#include "HardwareSerial.h"
 #include "PAMI_Interface.h"
 
+void totalStop() {
+  digitalWrite(STBY, LOW);
+}
+
 Servo armMotor;
+Timeout timeout(totalStop, 10000, false);
 
-motorStates MALastState = motorStates::Stop;
-motorStates MBLastState = motorStates::Stop;
-int currentSpeed = 0;
+PAMI_Interface::PAMI_Interface()
+{
+  
+}
 
-void PAMIInterface::setup() {
-  setupMotors();
-  armMotor.attach(servoArmPin);
+void PAMI_Interface::PAMIsetup() {
+  pinMode(aIn1, OUTPUT);
+  pinMode(aIn2, OUTPUT);
+  pinMode(bIn1, OUTPUT);
+  pinMode(bIn2, OUTPUT);
+  pinMode(pwmA, OUTPUT);
+  pinMode(pwmB, OUTPUT);
+
+  pinMode(STBY,OUTPUT);
+  digitalWrite(STBY, HIGH);
+
   pinMode(limitSwitchPin, INPUT);
   pinMode(switch1Pin, INPUT);
   pinMode(switch2Pin, INPUT);
@@ -17,64 +32,25 @@ void PAMIInterface::setup() {
   
   pinMode(ledPin, OUTPUT);
 
-  // armMotor.write(180);
+  armMotor.attach(servoArmPin);
+  armMotor.write(180);
 }
 
-void PAMIInterface::controlMotors(PAMIInterface::motorsDirections direction, PAMIInterface::motorsSpeeds speed = PAMIInterface::motorsSpeeds::Three, int distance) {
-  bool correctDirection = false;
-  int maxTicks = 0;
 
-  if(direction == PAMIInterface::motorsDirections::Forwards){
-    MALastState = motorStates::Forward;
-    MBLastState = motorStates::Forward;
-
-    maxTicks = int(distance / PI / wheelDiameter * ticksPerTurn);
-    correctDirection = true;
-  }else if(direction == PAMIInterface::motorsDirections::Backwards){
-    MALastState = motorStates::Backward;
-    MBLastState = motorStates::Backward;
-    
-    maxTicks = int(distance / PI / wheelDiameter * ticksPerTurn);
-    correctDirection = true;
-  }else if(direction == PAMIInterface::motorsDirections::Lefts){
-    MALastState = motorStates::Forward;
-    MBLastState = motorStates::Backward;
-
-    float radAngle = distance * PI / 180.0;
-    maxTicks = int(radAngle / (2 * PI) * ticksPerTurn * halfVehicleTrack / wheelDiameter * 2.0);
-    correctDirection = true;
-  }else if(direction == PAMIInterface::motorsDirections::Rights){
-    MALastState = motorStates::Backward;
-    MBLastState = motorStates::Forward;
-    
-    float radAngle = distance * PI / 180.0;
-    maxTicks = int(radAngle / (2 * PI) * ticksPerTurn * halfVehicleTrack / wheelDiameter * 2.0);
-    correctDirection = true;
-  }else if(direction == PAMIInterface::motorsDirections::Stops){
-    MALastState = motorStates::Stop;
-    MBLastState = motorStates::Stop;
-    correctDirection = true;
-  }
-
-  if(correctDirection) {
-    moveMotors(MALastState, MBLastState, maxTicks, speed);
-    currentSpeed = speed;
-  }
-}
-
-void PAMIInterface::raiseArm() {
+void PAMI_Interface::raiseArm() {
   armMotor.write(70);
 }
 
-void PAMIInterface::lowerArm() {
-  armMotor.write(30);
+void PAMI_Interface::lowerArm() {
+  armMotor.write(300);
 }
 
-bool PAMIInterface::getLimitSwitchState() {
-  return digitalRead(limitSwitchPin);
+bool PAMI_Interface::getLimitSwitchState() {
+  // return digitalRead(limitSwitchPin);
+  return false;
 }
 
-bool PAMIInterface::getSwitchState(int id) {
+bool PAMI_Interface::getSwitchState(int id) {
   int switchPin;
 
   if (id == 1) {
@@ -87,24 +63,159 @@ bool PAMIInterface::getSwitchState(int id) {
     switchPin = switch4Pin;
   }
 
-  return analogRead(switchPin);
+  return (analogRead(switchPin) > 512); // pour retourner une valeur bool on compare avec la valeur médiane sur la plage 0-1023
 }
 
-void PAMIInterface::setLedState(bool ledState) {
+void PAMI_Interface::setLedState(bool ledState) {
   digitalWrite(ledPin, ledState);
 }
 
-static void PAMIInterface::fixMotors(int coef) {
-  // MATicksDouble = static_cast<double>(MATicks);
-  // MBTicksDouble = static_cast<double>(MBTicks);
-  int diff = MATicks - MBTicks;
-  int MASpeed = constrain(currentSpeed - coef * diff, 0, 255);
-  int MBSpeed = constrain(currentSpeed + coef * diff, 0, 255);
+void PAMI_Interface::stopMotors()
+{
+  digitalWrite(aIn1, HIGH);
+  digitalWrite(aIn2, HIGH);
+  analogWrite(pwmA, 0);
+  digitalWrite(bIn1, HIGH);
+  digitalWrite(bIn2, HIGH);
+  analogWrite(pwmB, 0);
+}
 
-  Serial.println("A : " + String(MATicks) + " B : " + String(MBTicks) + " Diff : " + diff);
-  // pidMotorA.Compute();
-  // pidMotorB.Compute();
+void PAMI_Interface::moveMotors(int power_motor1, int power_motor2)
+{
+  if (power_motor1 > 0)
+  {
+    digitalWrite(aIn1, HIGH);
+    digitalWrite(aIn2, LOW);
+    analogWrite(pwmA, power_motor1);
+  }
+  else
+  {
+    digitalWrite(aIn1, LOW);
+    digitalWrite(aIn2, HIGH);
+    analogWrite(pwmA, -power_motor1);      
+  }
 
-  // moveMotors(MALastState, MBLastState, MASpeed, MBSpeed);
+  if (power_motor2 > 0)
+  {
+    digitalWrite(bIn1, HIGH);
+    digitalWrite(bIn2, LOW);
+    analogWrite(pwmB, power_motor2);
+  }
+  else
+  {
+    digitalWrite(bIn1, LOW);
+    digitalWrite(bIn2, HIGH);
+    analogWrite(pwmB, -power_motor2);      
+  }
 
+}
+
+void PAMI_Interface::drivePivot(int angle, bool clockwise)
+{
+  // angle doit etre exprime en degres
+  float radAngle = angle * PI / 180.0;
+  int maxTicks = int(radAngle / (2 * PI) * ticksPerTurn * halfVehicleTrack / wheelDiameter * 2.0);
+  //Serial.println(maxTicks); 
+
+  if (clockwise)
+    equalTicksRegulator(maxTicks, 3, false);
+  else
+    equalTicksRegulator(maxTicks, 4, false);
+}
+
+void PAMI_Interface::driveStraight(int distance, bool forward, bool interruptable)
+{
+  // distance doit etre exprime en millimetres
+  int maxTicks = int(distance / PI / wheelDiameter * ticksPerTurn);
+
+  if (forward)
+    equalTicksRegulator(maxTicks, 1, interruptable);
+  else
+    equalTicksRegulator(maxTicks, 2, interruptable);
+}
+
+void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interruptable)
+{
+  int basePWM = 100;
+
+  int signMot1;
+  int signMot2;
+  
+  switch(movement)
+  {
+    case 1: // straight, forward
+      signMot1 = 1;
+      signMot2 = 1;
+      basePWM = straightPWM;
+    break;
+    case 2: // straight, reverse
+      signMot1 = -1;
+      signMot2 = -1;
+      basePWM = straightPWM;
+    break;
+    case 3: // pivot, clockwise
+      signMot1 = -1;
+      signMot2 = 1;
+      basePWM = pivotPWM;
+    break;    
+    case 4: // pivot, counter-clockwise
+      signMot1 = 1;
+      signMot2 = -1;
+      basePWM = pivotPWM;
+    break;    
+    default:
+      signMot1 = 0;
+      signMot2 = 0;
+    break;
+  } 
+  
+  while (max(abs(MATicks), abs(MBTicks)) < maxTicks)
+  {
+    timeout.loop();
+    if (interruptable & getLimitSwitchState()) {
+      delay(500);
+      break;
+    }
+
+    // commander les moteurs jusqu'à ce qu'on ait atteint le nombre de ticks désiré
+    mot1PWM = min(255, basePWM + ticksDiff*coeff);
+    mot2PWM = min(255, basePWM - ticksDiff*coeff);
+    moveMotors(signMot1 * mot1PWM, signMot2 * mot2PWM);
+    
+    ticksDiff = abs(MATicks) - abs(MBTicks);
+  }
+
+  stopMotors();
+
+  logMessage += " Ticks moteur 1: ";
+  logMessage += MATicks;
+  logMessage += " Ticks moteur 2: ";
+  logMessage += MBTicks;
+  logMessage += " Final mot1 PWM";
+  logMessage += mot1PWM;
+  logMessage += " Final mot2 PWM";
+  logMessage += mot2PWM;
+  // Serial.println(logMessage);  
+
+  resetCounterA();
+  resetCounterB();
+  
+}
+
+void PAMI_Interface::resetCounterA()
+{
+  MATicks = 0;
+}
+
+void PAMI_Interface::resetCounterB()
+{
+  MBTicks = 0;
+}
+
+void PAMI_Interface::showTicks()
+{
+  Serial.print("MATicks: ");
+  Serial.print(MATicks);
+  Serial.print(" MBTicks: ");
+  Serial.println(MBTicks);  
 }

@@ -1,47 +1,74 @@
 #ifndef PAMI_INTERFACE_H
 #define PAMI_INTERFACE_H
 
-#include "Arduino.h" 
-#include "motors_controller.h"
-#include "motors_encoder.h"
+#include <Arduino.h>
 #include <Servo.h>
+#include <Timeout.h>
+#include "pinout.h"
 
-#define servoArmPin 9
-#define limitSwitchPin 13
-#define switch1Pin A2
-#define switch2Pin A3
-#define switch3Pin A4
-#define switch4Pin A5
-#define ledPin 4
+extern Timeout timeout;
 
-class PAMIInterface{
+class PAMI_Interface{
 public:
-  enum motorsDirections{
-    Forwards,
-    Backwards,
-    Lefts,
-    Rights,
-    Stops,
-  };
 
-  enum motorsSpeeds{
-    One = 64,
-    Two = 127,
-    Three = 191,
-    Four = 255,
-  };
+  PAMI_Interface();
 
-  static void setup();
-  static void controlMotors(PAMIInterface::motorsDirections direction, PAMIInterface::motorsSpeeds speed = PAMIInterface::motorsSpeeds::Three, int distance = 0);
-  static void raiseArm();
-  static void lowerArm();
-  static bool getLimitSwitchState();
-  static bool getSwitchState(int id);
-  static void setLedState(bool ledState);
-  static void fixMotors(int coef);
+  int mot1PWM;
+  int mot2PWM;
+  int straightPWM = 100;
+  int pivotPWM = 100;
+
+  int ticksDiff = 0;
+  float coeff = 1.5;
+  int ticksPerTurn = 353;
+  int wheelDiameter = 65; // millimetres
+  int halfVehicleTrack = 57; // millimetres : c'est la demi-voie du robot
+  int motorATurns;
+  int motorBTurns;
+
+  String logMessage;
+
+  void PAMIsetup();
+ 
+  //////////////////////////////
+  // Fonctions de mouvement
+  //////////////////////////////
+  void drivePivot(int angle, bool clockwise);
+  void driveStraight(int distance, bool forward, bool interruptable);
+  void equalTicksRegulator(int maxTicks, int movement, bool interruptable);
+
+  //////////////////////////////
+  // Servomoteur
+  //////////////////////////////
+  void raiseArm();
+  void lowerArm();
+  
+  //////////////////////////////
+  // Capteurs / Sélecteurs
+  //////////////////////////////
+  bool getLimitSwitchState();
+  bool getSwitchState(int id);
+
+  //////////////////////////////
+  // LED 
+  //////////////////////////////
+  void setLedState(bool ledState);
+
+  //////////////////////////////
+  // Moteurs de traction
+  //////////////////////////////
+  void stopMotors();
+  void moveMotors(int power_motor1, int power_motor2);
+
+  //////////////////////////////
+  // Encodeurs
+  void resetCounterA();
+  void resetCounterB();
+  void showTicks();
+
 
 private:
-  PAMIInterface();
+
 };
 
 #endif

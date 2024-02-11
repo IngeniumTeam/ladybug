@@ -1,71 +1,62 @@
 #include "PAMI_interface.h"
+#include "pinout.h"
 
-bool inYellowTeam = true;
+bool inBlueTeam = true;
 int pamiId = 1;
 int state = 1;
 
+long MATicks = 0;
+long MBTicks = 0;
+
+PAMI_Interface monPAMI;
+
+
 void setup() {
-  PAMIInterface::setup();
+  Serial.begin(9600);
 
-  inYellowTeam = PAMIInterface::getSwitchState(4);
+  initialize_encoders();
+  
+  monPAMI.PAMIsetup();
 
-  if(PAMIInterface::getSwitchState(1)) {
+  inBlueTeam = monPAMI.getSwitchState(4);
+
+  if(monPAMI.getSwitchState(1)) {
     pamiId = 1;
-  }else if(PAMIInterface::getSwitchState(2)) {
+  }else if(monPAMI.getSwitchState(2)) {
     pamiId = 2;
-  }else if(PAMIInterface::getSwitchState(3)) {
+  }else if(monPAMI.getSwitchState(3)) {
     pamiId = 3;
   }
 
-  // Serial.begin(9600);
-  PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
+  monPAMI.raiseArm();
+
+  for (int i = 0; i < pamiId; i++)
+  {
+    monPAMI.setLedState(true);
+    delay(200);
+    monPAMI.setLedState(false);
+    delay(200);  
+  }
+
+  monPAMI.stopMotors();
+  timeout.start();
+
+  if (pamiId == 1) {
+    monPAMI.driveStraight(550, true, false);
+    monPAMI.drivePivot(90, inBlueTeam); 
+  }else if (pamiId == 2) {
+    monPAMI.driveStraight(250, true, false);
+    monPAMI.drivePivot(90, inBlueTeam); 
+    monPAMI.driveStraight(500, true, false);
+    monPAMI.drivePivot(90, inBlueTeam); 
+  }else if (pamiId == 3) {
+
+  }
+
+  monPAMI.driveStraight(100000, true, true);
+  monPAMI.lowerArm();
 }
 
 void loop() {
-  PAMIInterface::fixMotors(0.2);
-  // Serial.println("A : " + String(MATicks) + " B : " + String(MBTicks));
-
-  // if(motorATurns <= -1) {
-  //   PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Stops);
-  //   resetCounterA();
-  //   delay(1000);
-  //   PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
-  // }
-
-  // switch (pamiId) 
-  // {
-  //   case 1:
-  //     switch (state)
-  //     {
-  //       case 1:
-  //         PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Forwards, PAMIInterface::motorsSpeeds::Two);
-  //         if(motorATurns == -3) {
-  //           resetCounterA();
-  //           state++;
-  //         }
-  //         break;
-  //       case 2:
-  //         PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Lefts, PAMIInterface::motorsSpeeds::Two);
-  //         if(motorATurns == -2) {
-  //           resetCounterA();
-  //           state++;
-  //         }
-  //       case 2:
-  //         PAMIInterface::controlMotors(PAMIInterface::motorsDirections::Lefts, PAMIInterface::motorsSpeeds::Two);
-  //         if(motorATurns == -2) {
-  //           resetCounterA();
-  //           state++;
-  //         }
-  //         break;
-  //     }
-  //     break;
-
-  //   case 2:
-
-  //     break;
-
-  //   case 3:
-
-  //     break;
-  // }
+  timeout.loop();
 }
