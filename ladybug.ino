@@ -3,7 +3,6 @@
 
 bool inBlueTeam = true;
 int pamiId = 1;
-int state = 1;
 
 long MATicks = 0;
 long MBTicks = 0;
@@ -39,18 +38,19 @@ void setup() {
   }
 
   monPAMI.stopMotors();
-  timeout.start();
+  // timeout.start();
 
   if (pamiId == 1) {
     monPAMI.driveStraight(550, true, false);
-    monPAMI.drivePivot(90, inBlueTeam); 
+    monPAMI.drivePivot(100, inBlueTeam); 
   }else if (pamiId == 2) {
     monPAMI.driveStraight(250, true, false);
-    monPAMI.drivePivot(90, inBlueTeam); 
+    monPAMI.drivePivot(95, inBlueTeam); 
     monPAMI.driveStraight(500, true, false);
-    monPAMI.drivePivot(90, inBlueTeam); 
+    monPAMI.drivePivot(110, inBlueTeam); 
   }else if (pamiId == 3) {
-
+    monPAMI.driveStraight(1350, true, false);
+    monPAMI.drivePivot(105, !inBlueTeam); 
   }
 
   monPAMI.driveStraight(100000, true, true);
@@ -59,4 +59,6 @@ void setup() {
 
 void loop() {
   timeout.loop();
+  // monPAMI.drivePivot(90, false);
+  // delay(1000);
 }

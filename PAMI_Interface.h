@@ -15,7 +15,7 @@ public:
 
   int mot1PWM;
   int mot2PWM;
-  int straightPWM = 100;
+  int straightPWM = 150;
   int pivotPWM = 100;
 
   int ticksDiff = 0;

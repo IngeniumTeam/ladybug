@@ -46,8 +46,7 @@ void PAMI_Interface::lowerArm() {
 }
 
 bool PAMI_Interface::getLimitSwitchState() {
-  // return digitalRead(limitSwitchPin);
-  return false;
+  return digitalRead(limitSwitchPin);
 }
 
 bool PAMI_Interface::getSwitchState(int id) {
