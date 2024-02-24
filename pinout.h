@@ -6,12 +6,12 @@
 extern long MATicks;
 extern long MBTicks;
 
-#define aIn1 7
-#define aIn2 8
-#define bIn1 11
-#define bIn2 12
+#define aIn1 8
+#define aIn2 7
+#define bIn1 12
+#define bIn2 11
 #define pwmA 5
-#define pwmB 6
+#define pwmB 6  
 #define STBY 10
 
 #define servoArmPin 9

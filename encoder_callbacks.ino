@@ -14,7 +14,7 @@ void initialize_encoders()
 }
 void MACounter()
 {
-  if (digitalRead(encoderA))
+  if (!digitalRead(encoderA))
   {
     MATicks++;
   }
@@ -26,7 +26,7 @@ void MACounter()
 
 void MBCounter()
 {
-  if (!digitalRead(encoderB))
+  if ( digitalRead(encoderB))
   {
     MBTicks++;
   }

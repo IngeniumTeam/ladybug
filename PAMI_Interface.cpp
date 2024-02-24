@@ -112,7 +112,13 @@ void PAMI_Interface::moveMotors(int power_motor1, int power_motor2)
 void PAMI_Interface::drivePivot(int angle, bool clockwise)
 {
   // angle doit etre exprime en degres
-  float radAngle = angle * PI / 180.0;
+  float radAngle = 0;
+
+  if (clockwise)
+    radAngle = (angle + correctCW) * PI / 180.0;
+  else
+    radAngle =(angle + correctCCW) * PI / 180.0;
+
   int maxTicks = int(radAngle / (2 * PI) * ticksPerTurn * halfVehicleTrack / wheelDiameter * 2.0);
   //Serial.println(maxTicks); 
 
@@ -135,6 +141,7 @@ void PAMI_Interface::driveStraight(int distance, bool forward, bool interruptabl
 
 void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interruptable)
 {
+  int basePWM_mot;
   int basePWM = 100;
 
   int signMot1;
@@ -171,14 +178,14 @@ void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interr
   while (max(abs(MATicks), abs(MBTicks)) < maxTicks)
   {
     timeout.loop();
-    if (interruptable & getLimitSwitchState()) {
-      delay(500);
-      break;
-    }
+
+    if(abs(MATicks) < 400)
+      basePWM_mot = 50 + ( (basePWM - 50) * abs(MATicks) ) / 400.0 ;
 
     // commander les moteurs jusqu'à ce qu'on ait atteint le nombre de ticks désiré
-    mot1PWM = min(255, basePWM + ticksDiff*coeff);
-    mot2PWM = min(255, basePWM - ticksDiff*coeff);
+    mot1PWM = min(255, basePWM_mot - ticksDiff*coeff);
+    mot2PWM = min(255, basePWM_mot + ticksDiff*coeff);
+    Serial.println("PWM " + String(basePWM_mot));
     moveMotors(signMot1 * mot1PWM, signMot2 * mot2PWM);
     
     ticksDiff = abs(MATicks) - abs(MBTicks);
@@ -195,7 +202,7 @@ void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interr
   logMessage += " Final mot2 PWM";
   logMessage += mot2PWM;
   // Serial.println(logMessage);  
-
+  Serial.println("MATicks : " + String(MATicks) + "MBTicks : " + String(MBTicks) + "MaxTicks : " + String(maxTicks));
   resetCounterA();
   resetCounterB();
   

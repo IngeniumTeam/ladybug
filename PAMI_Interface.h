@@ -16,7 +16,7 @@ public:
   int mot1PWM;
   int mot2PWM;
   int straightPWM = 150;
-  int pivotPWM = 100;
+  int pivotPWM = 90;
 
   int ticksDiff = 0;
   float coeff = 1.5;
@@ -25,6 +25,9 @@ public:
   int halfVehicleTrack = 57; // millimetres : c'est la demi-voie du robot
   int motorATurns;
   int motorBTurns;
+
+  int correctCW = -10;
+  int correctCCW = 15;
 
   String logMessage;
 

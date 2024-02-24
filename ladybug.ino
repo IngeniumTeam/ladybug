@@ -1,7 +1,7 @@
 #include "PAMI_interface.h"
 #include "pinout.h"
 
-bool inBlueTeam = true;
+bool inYellowTeam = true;
 int pamiId = 1;
 
 long MATicks = 0;
@@ -12,12 +12,10 @@ PAMI_Interface monPAMI;
 
 void setup() {
   Serial.begin(9600);
-
   initialize_encoders();
-  
   monPAMI.PAMIsetup();
 
-  inBlueTeam = monPAMI.getSwitchState(4);
+  inYellowTeam = monPAMI.getSwitchState(4);
 
   if(monPAMI.getSwitchState(1)) {
     pamiId = 1;
@@ -41,24 +39,25 @@ void setup() {
   // timeout.start();
 
   if (pamiId == 1) {
-    monPAMI.driveStraight(550, true, false);
-    monPAMI.drivePivot(100, inBlueTeam); 
+    monPAMI.driveStraight(425, true, false);
+    monPAMI.drivePivot(90, inYellowTeam); 
+    monPAMI.driveStraight(1150, true, false);
   }else if (pamiId == 2) {
     monPAMI.driveStraight(250, true, false);
-    monPAMI.drivePivot(95, inBlueTeam); 
+    monPAMI.drivePivot(90, inYellowTeam); 
     monPAMI.driveStraight(500, true, false);
-    monPAMI.drivePivot(110, inBlueTeam); 
+    monPAMI.drivePivot(90, inYellowTeam); 
+    monPAMI.driveStraight(250, true, false);
   }else if (pamiId == 3) {
     monPAMI.driveStraight(1350, true, false);
-    monPAMI.drivePivot(105, !inBlueTeam); 
+    monPAMI.drivePivot(90, !inYellowTeam); 
+    monPAMI.driveStraight(1450, true, false);
   }
-
-  monPAMI.driveStraight(100000, true, true);
-  monPAMI.lowerArm();
+  // monPAMI.drivePivot(90, true);
 }
 
 void loop() {
-  timeout.loop();
+  // timeout.loop();
   // monPAMI.drivePivot(90, false);
   // delay(1000);
 }
