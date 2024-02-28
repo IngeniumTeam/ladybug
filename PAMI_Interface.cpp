@@ -1,12 +1,7 @@
 #include "HardwareSerial.h"
 #include "PAMI_Interface.h"
 
-void totalStop() {
-  digitalWrite(STBY, LOW);
-}
-
 Servo armMotor;
-Timeout timeout(totalStop, 10000, false);
 
 PAMI_Interface::PAMI_Interface()
 {
@@ -115,11 +110,11 @@ void PAMI_Interface::drivePivot(int angle, bool clockwise)
   float radAngle = 0;
 
   if (clockwise)
-    radAngle = (angle + correctCW) * PI / 180.0;
+    radAngle = (angle * correctCW) * PI / 180.0;
   else
-    radAngle =(angle + correctCCW) * PI / 180.0;
+    radAngle = (angle * correctCCW) * PI / 180.0;
 
-  int maxTicks = int(radAngle / (2 * PI) * ticksPerTurn * halfVehicleTrack / wheelDiameter * 2.0);
+  int maxTicks = int(radAngle / PI * ticksPerTurn * halfVehicleTrack / wheelDiameter);
   //Serial.println(maxTicks); 
 
   if (clockwise)
@@ -160,13 +155,13 @@ void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interr
       basePWM = straightPWM;
     break;
     case 3: // pivot, clockwise
-      signMot1 = -1;
-      signMot2 = 1;
+      signMot1 = 1;
+      signMot2 = -1;
       basePWM = pivotPWM;
     break;    
     case 4: // pivot, counter-clockwise
-      signMot1 = 1;
-      signMot2 = -1;
+      signMot1 = -1;
+      signMot2 = 1;
       basePWM = pivotPWM;
     break;    
     default:
@@ -178,14 +173,25 @@ void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interr
   while (max(abs(MATicks), abs(MBTicks)) < maxTicks)
   {
     timeout.loop();
+    if (abs(MATicks) > (maxTicks - ticksForAccel) ) // un certain nombre de ticks avant d'avoir terminé le mouvement
+    {
+      basePWM_mot = minPWM + ( (basePWM - minPWM) * (maxTicks - abs(MATicks) ) / ticksForAccel) ;
+    }
 
-    if(abs(MATicks) < 400)
-      basePWM_mot = 50 + ( (basePWM - 50) * abs(MATicks) ) / 400.0 ;
+    else if(abs(MATicks) < ticksForAccel) // au début du mouvement
+    {
+      basePWM_mot = minPWM + ( (basePWM - minPWM) * abs(MATicks) ) / ticksForAccel ;
+    }
+    else
+    {
+      basePWM_mot = basePWM;
+    }
+      
 
     // commander les moteurs jusqu'à ce qu'on ait atteint le nombre de ticks désiré
     mot1PWM = min(255, basePWM_mot - ticksDiff*coeff);
     mot2PWM = min(255, basePWM_mot + ticksDiff*coeff);
-    Serial.println("PWM " + String(basePWM_mot));
+    // Serial.println("PWM " + String(basePWM_mot));
     moveMotors(signMot1 * mot1PWM, signMot2 * mot2PWM);
     
     ticksDiff = abs(MATicks) - abs(MBTicks);

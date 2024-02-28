@@ -15,8 +15,9 @@ public:
 
   int mot1PWM;
   int mot2PWM;
+  int minPWM = 95;
   int straightPWM = 150;
-  int pivotPWM = 90;
+  int pivotPWM = 120;
 
   int ticksDiff = 0;
   float coeff = 1.5;
@@ -24,10 +25,13 @@ public:
   int wheelDiameter = 65; // millimetres
   int halfVehicleTrack = 57; // millimetres : c'est la demi-voie du robot
   int motorATurns;
+
   int motorBTurns;
 
-  int correctCW = -10;
-  int correctCCW = 15;
+  float correctCW = 1.0;
+  float correctCCW = 1.0;
+
+  int ticksForAccel = 200;
 
   String logMessage;
 
@@ -41,7 +45,7 @@ public:
   void equalTicksRegulator(int maxTicks, int movement, bool interruptable);
 
   //////////////////////////////
-  // Servomoteur
+  // Servomote  ur
   //////////////////////////////
   void raiseArm();
   void lowerArm();
