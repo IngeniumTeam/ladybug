@@ -8,7 +8,7 @@ int pamiId = 1;
 long MATicks = 0;
 long MBTicks = 0;
 
-int timeOutBeforeStart = 90000;
+long timeOutBeforeStart = 90000;
 int timeOutAfterStart = 10000;
 
 PAMI_Interface monPAMI;
@@ -42,45 +42,51 @@ void setup() {
 
   monPAMI.stopMotors();
 
-  Serial.println("PAMI n°" + String(pamiId) + " in team Yellow ? " + String(inYellowTeam));
+  Serial.print("PAMI n°" + String(pamiId) + " in ");
+  Serial.print(inYellowTeam ? "Yellow" : "Blue");
+  Serial.println(" team");
   
   while(digitalRead(limitSwitchPin)) // Attente tirette
   {
-    Serial.println("Waiting for start signal! Switch input = " + String(digitalRead(limitSwitchPin))); 
+    // Serial.println("Waiting for start signal! Switch input = " + String(digitalRead(limitSwitchPin))); 
     delay(100);
   }
   Serial.println("Countdown started!");
+  delay(timeOutBeforeStart);
+  
+  Serial.println("Launch !");
   timeout.start();
 
   if (pamiId == 1) {
 
-    monPAMI.correctCW = 1.0;
-    monPAMI.correctCCW = 1.0;
+    monPAMI.correctCW = 1.08;
+    monPAMI.correctCCW = 0.71;
 
-    monPAMI.driveStraight(425, true, false);
+    monPAMI.driveStraight(450, true, false);
     monPAMI.drivePivot(90, inYellowTeam); 
     monPAMI.driveStraight(1150, true, false);
   }else if (pamiId == 2) {
 
     monPAMI.correctCW = 1.08;
-    monPAMI.correctCCW = 0.79;
+    monPAMI.correctCCW = 0.74;
 
     monPAMI.driveStraight(250, true, false);
     monPAMI.drivePivot(90, inYellowTeam); 
-    monPAMI.driveStraight(500, true, false);
+    monPAMI.driveStraight(550, true, false);
     monPAMI.drivePivot(90, inYellowTeam); 
-    monPAMI.driveStraight(250, true, false);
+    monPAMI.driveStraight(300, true, false);
 
   }else if (pamiId == 3) {
 
-    monPAMI.correctCW = 1.0;
-    monPAMI.correctCCW = 1.0;
+    monPAMI.correctCW = 1.10;
+    monPAMI.correctCCW = 0.70;
 
-    monPAMI.driveStraight(1350, true, false);
+    monPAMI.driveStraight(1250, true, false);
     monPAMI.drivePivot(90, !inYellowTeam); 
-    monPAMI.driveStraight(1450, true, false);
+    monPAMI.driveStraight(1550, true, false);
   }
 
+  monPAMI.lowerArm();
 }
 
 void loop() {
