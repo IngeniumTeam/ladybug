@@ -14,7 +14,6 @@ int timeOutAfterStart = 10000;
 PAMI_Interface monPAMI;
 Timeout timeout(&totalStop, timeOutAfterStart, false);
 
-
 void setup() {
   Serial.begin(9600);
   initialize_encoders();
@@ -30,6 +29,8 @@ void setup() {
     pamiId = 3;
   }
 
+  Serial.println(pamiId);
+
   monPAMI.raiseArm();
 
   for (int i = 0; i < pamiId; i++)
@@ -37,7 +38,7 @@ void setup() {
     monPAMI.setLedState(true);
     delay(200);
     monPAMI.setLedState(false);
-    delay(200);  
+    delay(200);
   }
 
   monPAMI.stopMotors();
@@ -48,27 +49,31 @@ void setup() {
   
   while(digitalRead(limitSwitchPin)) // Attente tirette
   {
-    // Serial.println("Waiting for start signal! Switch input = " + String(digitalRead(limitSwitchPin))); 
+    Serial.println("Waiting for start signal! Switch input = " + String(digitalRead(limitSwitchPin))); 
     delay(100);
   }
   Serial.println("Countdown started!");
-  delay(timeOutBeforeStart);
+  // delay(timeOutBeforeStart);  
   
   Serial.println("Launch !");
   timeout.start();
 
   if (pamiId == 1) {
+    // For PAMI 1
+    monPAMI.correctCW = 0.95;
+    monPAMI.correctCCW = 0.81;
 
-    monPAMI.correctCW = 1.08;
-    monPAMI.correctCCW = 0.71;
+    // For PAMI 2
+    // monPAMI.correctCW = 1.08;
+    // monPAMI.correctCCW = 0.81;
 
     monPAMI.driveStraight(450, true, false);
     monPAMI.drivePivot(90, inYellowTeam); 
     monPAMI.driveStraight(1150, true, false);
   }else if (pamiId == 2) {
 
-    monPAMI.correctCW = 1.08;
-    monPAMI.correctCCW = 0.74;
+    monPAMI.correctCW = 1.06;
+    monPAMI.correctCCW = 0.69;
 
     monPAMI.driveStraight(250, true, false);
     monPAMI.drivePivot(90, inYellowTeam); 
@@ -87,6 +92,12 @@ void setup() {
   }
 
   monPAMI.lowerArm();
+  while (true) {
+    monPAMI.setLedState(true);
+    delay(200);
+    monPAMI.setLedState(false);
+    delay(200);  
+  }
 }
 
 void loop() {
@@ -97,4 +108,10 @@ void loop() {
 
 void totalStop() {
   digitalWrite(STBY, LOW);
+  while (true) {
+    monPAMI.setLedState(true);
+    delay(200);
+    monPAMI.setLedState(false);
+    delay(200);  
+  }
 }

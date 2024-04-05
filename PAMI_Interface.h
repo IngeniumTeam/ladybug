@@ -21,7 +21,7 @@ public:
 
   int ticksDiff = 0;
   float coeff = 1.5;
-  int ticksPerTurn = 353;
+  int ticksPerTurn = 1092;
   int wheelDiameter = 65; // millimetres
   int halfVehicleTrack = 57; // millimetres : c'est la demi-voie du robot
   int motorATurns;
