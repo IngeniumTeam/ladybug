@@ -108,16 +108,16 @@ void PAMI_Interface::drivePivot(int angle, bool clockwise)
 {
   // angle doit etre exprime en degres
   float radAngle = 0;
-
+  
   if (clockwise)
     radAngle = (angle * correctCW) * PI / 180.0;
   else
     radAngle = (angle * correctCCW) * PI / 180.0;
-
   int maxTicks = int(radAngle / PI * ticksPerTurn * halfVehicleTrack / wheelDiameter);
+    Serial.println(radAngle);
   //Serial.println(maxTicks); 
 
-  if (clockwise)
+  if (!clockwise)
     equalTicksRegulator(maxTicks, 3, false);
   else
     equalTicksRegulator(maxTicks, 4, false);
@@ -155,13 +155,13 @@ void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interr
       basePWM = straightPWM;
     break;
     case 3: // pivot, clockwise
-      signMot1 = 1;
-      signMot2 = -1;
+      signMot1 = -1;
+      signMot2 = 1;
       basePWM = pivotPWM;
     break;    
     case 4: // pivot, counter-clockwise
-      signMot1 = -1;
-      signMot2 = 1;
+      signMot1 = 1;
+      signMot2 = -1;
       basePWM = pivotPWM;
     break;    
     default:

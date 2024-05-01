@@ -56,38 +56,32 @@ void setup() {
   // delay(timeOutBeforeStart);  
   
   Serial.println("Launch !");
-  timeout.start();
+  // timeout.start();
+
+  // monPAMI.drivePivot(90, 0);
 
   if (pamiId == 1) {
-    // For PAMI 1
-    monPAMI.correctCW = 0.95;
-    monPAMI.correctCCW = 0.81;
-
-    // For PAMI 2
-    // monPAMI.correctCW = 1.08;
-    // monPAMI.correctCCW = 0.81;
-
-    monPAMI.driveStraight(450, true, false);
-    monPAMI.drivePivot(90, inYellowTeam); 
-    monPAMI.driveStraight(1150, true, false);
-  }else if (pamiId == 2) {
-
     monPAMI.correctCW = 1.06;
-    monPAMI.correctCCW = 0.69;
+    monPAMI.correctCCW = 1.06;
 
-    monPAMI.driveStraight(250, true, false);
-    monPAMI.drivePivot(90, inYellowTeam); 
-    monPAMI.driveStraight(550, true, false);
-    monPAMI.drivePivot(90, inYellowTeam); 
-    monPAMI.driveStraight(300, true, false);
+    monPAMI.driveStraight(400, true, false);
+    monPAMI.drivePivot(100, !inYellowTeam); 
+    monPAMI.driveStraight(80, true, false);
+
+  }else if (pamiId == 2) {
+    monPAMI.correctCW = 1.06;
+    monPAMI.correctCCW = 1.00;
+
+    monPAMI.driveStraight(430, true, false);
+    monPAMI.drivePivot(78, !inYellowTeam); 
+    monPAMI.driveStraight(1250, true, false);
 
   }else if (pamiId == 3) {
-
     monPAMI.correctCW = 1.10;
     monPAMI.correctCCW = 0.70;
 
     monPAMI.driveStraight(1250, true, false);
-    monPAMI.drivePivot(90, !inYellowTeam); 
+    monPAMI.drivePivot(90, inYellowTeam); 
     monPAMI.driveStraight(1550, true, false);
   }
 

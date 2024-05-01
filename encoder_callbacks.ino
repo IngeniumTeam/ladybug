@@ -26,7 +26,7 @@ void MACounter()
 
 void MBCounter()
 {
-  if ( digitalRead(encoderB))
+  if (digitalRead(encoderB))
   {
     MBTicks++;
   }
