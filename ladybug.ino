@@ -1,6 +1,5 @@
 #include "PAMI_interface.h"
 #include "pinout.h"
-// #include "Timeout.h"
 
 bool inYellowTeam = true;
 int pamiId = 1;
@@ -15,7 +14,7 @@ PAMI_Interface monPAMI;
 Timeout timeout(&totalStop, timeOutAfterStart, false);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   initialize_encoders();
   monPAMI.PAMIsetup();
 
@@ -58,34 +57,73 @@ void setup() {
   Serial.println("Launch !");
   // timeout.start();
 
-  // monPAMI.drivePivot(90, 0);
+  // monPAMI.driveStraight(800, true, false);
 
   if (pamiId == 1) {
-    monPAMI.correctCW = 1.06;
-    monPAMI.correctCCW = 1.06;
+    monPAMI.correctCW = 1.0;
+    monPAMI.correctCCW = 0.97;
 
+    monPAMI.ticksPerTurn_motA = 969;
+    monPAMI.ticksPerTurn_motB = 983;
+    monPAMI.wheelDiameter_motA = 66.2;
+    monPAMI.wheelDiameter_motB = 66.0;
+    monPAMI.halfVehicleTrack = 59.5;
+    monPAMI.extraDist = 0; // Doit etre calibré!
+
+    // Strategie de match
     monPAMI.driveStraight(400, true, false);
-    monPAMI.drivePivot(100, !inYellowTeam); 
+    monPAMI.drivePivot(90, !inYellowTeam); 
     monPAMI.driveStraight(80, true, false);
 
+    // Mouvements de test
+    // monPAMI.drivePivot(180, false); 
+    // monPAMI.driveStraight(500, true, false);
+    
   }else if (pamiId == 2) {
-    monPAMI.correctCW = 1.06;
-    monPAMI.correctCCW = 1.00;
+    monPAMI.correctCW = 1.0; // Doit etre calibré!
+    monPAMI.correctCCW = 1.5; // Doit etre calibré!
 
+    monPAMI.ticksPerTurn_motA = 959;
+    monPAMI.ticksPerTurn_motB = 970;
+    monPAMI.wheelDiameter_motA = 51.0;
+    monPAMI.wheelDiameter_motB = 81.0;
+    monPAMI.halfVehicleTrack = 59.5;
+    monPAMI.extraDist = 0; // Doit etre calibré!
+
+    // Strategie de match
     monPAMI.driveStraight(430, true, false);
-    monPAMI.drivePivot(78, !inYellowTeam); 
-    monPAMI.driveStraight(1250, true, false);
+    monPAMI.drivePivot(70, !inYellowTeam); 
+    monPAMI.driveStraight(1260, true, false);
+    
+    // Mouvements de test
+    // monPAMI.driveStraight(1000, true, false);
+    // monPAMI.drivePivot(90, 0); 
+    // monPAMI.drivePivot(90, 1); 
 
   }else if (pamiId == 3) {
-    monPAMI.correctCW = 1.10;
-    monPAMI.correctCCW = 0.70;
+    monPAMI.correctCW = 1.00; // Doit etre calibré!
+    monPAMI.correctCCW = 1.00; // Doit etre calibré!
 
-    monPAMI.driveStraight(1250, true, false);
-    monPAMI.drivePivot(90, inYellowTeam); 
-    monPAMI.driveStraight(1550, true, false);
+    monPAMI.ticksPerTurn_motA = 970;  // Doit etre calibré!
+    monPAMI.ticksPerTurn_motB = 970; // Doit etre calibré!
+    monPAMI.wheelDiameter_motA = 54.0;
+    monPAMI.wheelDiameter_motB = 76.0;
+    monPAMI.halfVehicleTrack = 60.0; // Doit etre calibré!
+    monPAMI.extraDist = 0; // Doit etre calibré!
+
+    // Strategie de match
+    // monPAMI.driveStraight(1250, true, false);
+    // monPAMI.drivePivot(90, inYellowTeam); 
+    // monPAMI.driveStraight(1550, true, false);
+
+    // Mouvements de test
+    monPAMI.driveStraight(1000, true, false);
+    // monPAMI.drivePivot(90, 0); 
+    // monPAMI.drivePivot(90, 1);    
   }
 
   monPAMI.lowerArm();
+
   while (true) {
     monPAMI.setLedState(true);
     delay(200);

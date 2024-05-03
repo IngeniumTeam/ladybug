@@ -1,5 +1,6 @@
 #include "HardwareSerial.h"
 #include "PAMI_Interface.h"
+//#include "Timeout.h"
 
 Servo armMotor;
 
@@ -113,28 +114,29 @@ void PAMI_Interface::drivePivot(int angle, bool clockwise)
     radAngle = (angle * correctCW) * PI / 180.0;
   else
     radAngle = (angle * correctCCW) * PI / 180.0;
-  int maxTicks = int(radAngle / PI * ticksPerTurn * halfVehicleTrack / wheelDiameter);
-    Serial.println(radAngle);
+
+  int distance = int(radAngle * halfVehicleTrack);
+  // int maxTicks = int(radAngle / PI * ticksPerTurn * halfVehicleTrack / wheelDiameter);
+  // Serial.println(radAngle);
   //Serial.println(maxTicks); 
 
   if (!clockwise)
-    equalTicksRegulator(maxTicks, 3, false);
+    equalDistRegulator(distance - extraDist, 3, false);
   else
-    equalTicksRegulator(maxTicks, 4, false);
+    equalDistRegulator(distance - extraDist, 4, false);
 }
 
 void PAMI_Interface::driveStraight(int distance, bool forward, bool interruptable)
 {
   // distance doit etre exprime en millimetres
-  int maxTicks = int(distance / PI / wheelDiameter * ticksPerTurn);
 
   if (forward)
-    equalTicksRegulator(maxTicks, 1, interruptable);
+    equalDistRegulator(distance - extraDist, 1, interruptable);
   else
-    equalTicksRegulator(maxTicks, 2, interruptable);
+    equalDistRegulator(distance - extraDist, 2, interruptable);
 }
 
-void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interruptable)
+void PAMI_Interface::equalDistRegulator(int distance, int movement, bool interruptable)
 {
   int basePWM_mot;
   int basePWM = 100;
@@ -142,6 +144,10 @@ void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interr
   int signMot1;
   int signMot2;
   
+  float distance_A = 0.0;
+  float distance_B = 0.0;
+  distanceDiff = abs(distance_A) - abs(distance_B);
+
   switch(movement)
   {
     case 1: // straight, forward
@@ -169,32 +175,48 @@ void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interr
       signMot2 = 0;
     break;
   } 
-  
-  while (max(abs(MATicks), abs(MBTicks)) < maxTicks)
+
+  // commander les moteurs jusqu'à ce qu'on ait atteint le nombre de ticks désiré
+  while (max(abs(distance_A), abs(distance_B)) < distance)
   {
+    distance_A = MATicks * PI * wheelDiameter_motA / ticksPerTurn_motA;
+    distance_B = MBTicks * PI * wheelDiameter_motB / ticksPerTurn_motB;
+
     timeout.loop();
-    if (abs(MATicks) > (maxTicks - ticksForAccel) ) // un certain nombre de ticks avant d'avoir terminé le mouvement
+    if (abs(distance_A) > (distance - distanceAccel) ) // un certain nombre de ticks avant d'avoir terminé le mouvement
     {
-      basePWM_mot = minPWM + ( (basePWM - minPWM) * (maxTicks - abs(MATicks) ) / ticksForAccel) ;
+      basePWM_mot = minPWM + ( (basePWM - minPWM) * (distance - abs(distance_A) ) / distanceAccel) ;
     }
 
-    else if(abs(MATicks) < ticksForAccel) // au début du mouvement
+    else if(abs(distance_A) < distanceAccel) // au début du mouvement
     {
-      basePWM_mot = minPWM + ( (basePWM - minPWM) * abs(MATicks) ) / ticksForAccel ;
+      basePWM_mot = minPWM + ( (basePWM - minPWM) * abs(distance_A) ) / distanceAccel ;
     }
     else
     {
       basePWM_mot = basePWM;
     }
       
+    // Ajuster la puissance des moteurs, si une roue tourne plus vite que l'autre
+    if (distanceDiff > 0)
+    {
+      mot1PWM = max(minMotorDrive, basePWM_mot - distanceDiff*coeff);
+      mot2PWM = basePWM_mot;
+    }
+    else
+    {
+      mot1PWM = basePWM_mot;
+      mot2PWM = max(minMotorDrive, basePWM_mot + distanceDiff*coeff);
+    }
 
-    // commander les moteurs jusqu'à ce qu'on ait atteint le nombre de ticks désiré
-    mot1PWM = min(255, basePWM_mot - ticksDiff*coeff);
-    mot2PWM = min(255, basePWM_mot + ticksDiff*coeff);
-    // Serial.println("PWM " + String(basePWM_mot));
+    Serial.println("MATicks " + String(MATicks) + ", MBTicks " + String(MBTicks) + ", diff " + String(ticksDiff) + "distance A " + String(distance_A) + ", distance_B " + String(distance_B) + ", diff " + String(distanceDiff) + ", PWM1 " + String(mot1PWM) + ", PWM2 " + String(mot2PWM));
+    
+    // Commander les moteurs
     moveMotors(signMot1 * mot1PWM, signMot2 * mot2PWM);
     
+    // Evaluer la différence entre les deux roues
     ticksDiff = abs(MATicks) - abs(MBTicks);
+    distanceDiff = abs(distance_A) - abs(distance_B);
   }
 
   stopMotors();
@@ -208,7 +230,7 @@ void PAMI_Interface::equalTicksRegulator(int maxTicks, int movement, bool interr
   logMessage += " Final mot2 PWM";
   logMessage += mot2PWM;
   // Serial.println(logMessage);  
-  Serial.println("MATicks : " + String(MATicks) + "MBTicks : " + String(MBTicks) + "MaxTicks : " + String(maxTicks));
+  Serial.println("MATicks : " + String(MATicks) + "MBTicks : " + String(MBTicks) + "distance A " + String(distance_A) + ", distance_B " + String(distance_B));
   resetCounterA();
   resetCounterB();
   
